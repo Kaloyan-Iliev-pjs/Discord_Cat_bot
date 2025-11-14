@@ -1,0 +1,34 @@
+import requests
+from io import BytesIO
+import discord
+from discord.ext import commands
+
+
+def get_cat_img():
+    base_url = "https://api.thecatapi.com/v1/images/search"
+    response = requests.get(base_url)
+    data = response.json()
+    return data
+
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+
+@bot.command()
+async def cat(ctx):
+    image_response = requests.get(get_cat_img()[0]["url"])
+
+    await ctx.send(f"Here's a random cat image for you:")
+    await ctx.send(file=discord.File(BytesIO(image_response.content), "cat_image.jpg"))
+
+
+@bot.command()
+async def commands(ctx):
+    embed = discord.Embed(title="Bot Commands", description="List of available commands:")
+    embed.add_field(name="!cat", value="Get a random cat image!")
+    await ctx.send(embed=embed)
+
+
+bot.run("insert_bot_key_here")
